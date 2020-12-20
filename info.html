@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="shortcut icon" href="./img/icon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./css/info.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aays的全栈爬虫项目</title>
+</head>
+<script>
+    onload = () => {
+        let uname = localStorage.getItem('uname')
+        let upwd = localStorage.getItem('upwd')
+        const xhr = new XMLHttpRequest()
+        xhr.open('get', `http://localhost:3000?uname=${uname}&upwd=${upwd}`)
+        xhr.send()
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                let item = document.querySelector('.item')
+                    // let style = window.getComputedStyle(item)
+                let data = JSON.parse(xhr.responseText)
+                let name = data.name
+                let cost = data.cost
+                let money = data.money
+                document.querySelector('.name').innerHTML += `姓名：${name} `
+                document.querySelector('.balance').innerHTML += `一卡通余额：${money}`
+                if (money < 100) {
+                    document.querySelector('.balance').innerHTML += '(乏善可陈)'
+                } else if (100 <= mone < 200) {
+                    document.querySelector('.balance').innerHTML += '(捉襟见肘)'
+                } else if (money >= 200) {
+                    document.querySelector('.balance').innerHTML += '(腰缠万贯)'
+                }
+                document.querySelector('.thead').innerHTML += '最近三天的一卡通挥霍记录'
+                document.querySelector('.list').innerHTML += `<table border="1">
+                        <tr>
+                            <th>序号</th>
+                            <th>日期时间</th>
+                            <th>交易终端</th>
+                            <th>交易名称</th>
+                            <th>交易金额</th>
+                            <th>账户余额</th>
+                        </tr>
+                    </table>`
+                for (let i = 0; i < cost.length; i++) {
+                    if (i < cost[0].length) {
+                        document.querySelector('.list table').innerHTML += `<tr>
+                                        <td>${cost[i][0]}</td>
+                                        <td>${cost[i][1]}</td>
+                                        <td>${cost[i][2]}</td>
+                                        <td>${cost[i][3]}</td>
+                                        <td>${cost[i][4]}</td>
+                                        <td>${cost[i][5]}</td>
+                                        </tr>`
+                    }
+                }
+                //内容渐入
+                let display = () => {
+                    console.log(item.style.opacity);
+                    console.log(typeof(item.style.opacity));
+                    //此处注意opacity原值是字符串类型，需要将它转变为number类型再赋值
+                    item.style.opacity = 0.1 + Number(item.style.opacity)
+                    console.log('哈哈');
+                    if (style.opacity == 1) {
+                        clearInterval(time)
+                    }
+                }
+                let time = setInterval(() => {
+                    display()
+                }, 100)
+            }
+        }
+    }
+</script>
+
+<body>
+    <div class="item">
+        <div class="name"></div>
+        <div class="balance"></div>
+        <div class="thead">
+        </div>
+        <div class="list">
+        </div>
+    </div>
+</body>
+
+</html>

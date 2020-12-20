@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="shortcut icon" href="./img/icon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./css/index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        login = () => {
+            let uname = document.querySelector('#uname').value
+            let upwd = document.querySelector('#upwd').value
+            if (uname && upwd) {
+                localStorage.setItem('uname', uname)
+                localStorage.setItem('upwd', upwd)
+            }
+            window.location.href = "./info.html"
+        }
+    </script>
+    <title>Aays的全栈爬虫项目</title>
+</head>
+
+<body>
+    <div class="item">
+        <div class="title">
+            <h1>Scrape Student Info</h1>
+        </div>
+        <div class="login">
+            <div>账号<input type="text" id='uname' value='' /></div>
+            <div>密码<input type="password" id='upwd' value='' /></div>
+            <button id='login' onclick="login()">登录</button>
+        </div>
+    </div>
+</body>
+
+</html>
