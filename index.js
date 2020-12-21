@@ -26,7 +26,7 @@ const { resolve } = require('_uri-js@4.4.0@uri-js');
 const aiurl = 'https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic' //百度ai请求地址
 let token = ''
 let code = ''
-let getToken = () => {
+let getToken = (path) => {
     return new Promise((res, err) => {
         // res()就是执行promise里面的函数+执行.then里面的函数(这个过程中把promise的状态从pending变为resolved+
         // 放进res的第一个参数就是这个promise返回的值
@@ -44,12 +44,12 @@ let getToken = () => {
             }
             // JSON.parse方法可以让服务端传来的Json对象变成js的对象
             token = JSON.parse(response.body).access_token
-            getCode(token).then(code => { res(code) })
+            getCode(token, path).then(code => { res(code) })
         })
     })
 }
-let getCode = (token) => {
-        let imageFile = fs.readFileSync('./img/code.png')
+let getCode = (token, path) => {
+        let imageFile = fs.readFileSync(path)
             // image是fs读取的文件而不是文件路径
         let image = new Buffer.from(imageFile, 'binary').toString('base64');
         return new Promise((resCode, err) => {
@@ -81,7 +81,7 @@ let getCode = (token) => {
     // 爬取函数
 let scrape = async(uname, upwd) => {
     // 创建无头浏览器
-    const broswer = await puppeteer.launch({ headless: true })
+    const broswer = await puppeteer.launch({ headless: false })
         // 创建页面
         //先连vpn
     const vpn = await broswer.newPage()
@@ -90,16 +90,28 @@ let scrape = async(uname, upwd) => {
         // let page = null
         // let Login = null
         // let getData = null
-
     await vpn.goto('https://vpn.shou.edu.cn/')
     const hasLogin = await vpn.$("#logButton");
     if (hasLogin) {
         await vpn.click('#svpn_name')
+        console.log(uname);
         await vpn.keyboard.type(uname);
         await vpn.click('#svpn_password')
         await vpn.keyboard.type(upwd);
+        //vpn存在验证码时启用
+        // let image1 = await vpn.$('#randcodeImg')
+        // if (image1) {
+        //     await image1.screenshot({
+        //         path: './img/code1.png'
+        //     })
+        //     await getToken('./img/code1.png').then(async(code) => {
+        //         console.log((code.trim()).replace(/\s/g, ''));
+        //         await vpn.click('#randcode');
+        //         await vpn.keyboard.type((code.trim()).replace(/\s/g, ''));
+        //     })
+        // }
         await vpn.click('#logButton')
-            // 等待十秒
+            // 等待十五秒
         await vpn.waitForTimeout(15000)
     } else {
         // 如果已经连接vpn,关闭
@@ -134,17 +146,12 @@ let scrape = async(uname, upwd) => {
         await page.click('#password')
             // 输入密码
         await page.keyboard.type(upwd);
-        //抓取取验证码图片保存到本地
-        // 获取验证码随机id
-        // e.id不能加花括号
         let image = await page.$('#imageCode > td > div > img')
-            // let url = await page.$eval('#imageCode > td > div > img', e => e.src)
-            // console.log(url);
             // 对验证码进行截图
         await image.screenshot({
             path: './img/code.png'
         })
-        await getToken().then(async(code) => {
+        await getToken('./img/code.png').then(async(code) => {
                 console.log((code.trim()).replace(/\s/g, ''));
                 await page.click('#imageCodeName');
                 // 用trim方法去除code中的两端空白，再用正则去除中间空格，因为验证码限制只能输入四位
